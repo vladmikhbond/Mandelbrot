@@ -1,7 +1,8 @@
-// z = z*z + c
-const IT = 40;
+
+
 let x1 = -2, y1 = -1, x2 = 1, y2 = 1;
 let d = 0.005;
+const IT = 40;
 
 const canvas1 = document.getElementById("canvas1");
 const ctx = canvas1.getContext("2d");
@@ -13,14 +14,14 @@ ctx.translate(-x1, -y1);
 
 for (let x = x1; x < x2; x += d) {
     for (let y = y1; y < y2; y += d) {
-       let i = next(x, y);
+       let i = nextIter(x, y);
        if (i == IT)
            ctx.fillRect(x, y, d, d);
     }
 }
 
 
-function next(x, y) {
+function nextIter(x, y) {
     // Zn = Zn * Zn + c
     let cx = x, cy = y;
     for (let i = 0; i < IT; i++)
