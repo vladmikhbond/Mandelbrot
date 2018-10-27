@@ -1,20 +1,18 @@
-
-
 const K = 2;         // scale change for one step
 
-// let iterButton = document.getElementById("iterButton");
-// const canvas1 = document.getElementById("canvas1");
 const ctx = canvas1.getContext("2d");
 
 let x1 = -2, y1 = -1, x2 = 1, y2 = 1;
-let d = 1   ;
+let d = 1;
 let iterLimit = +iterText.value;
 const stack = [];
 const colors = ["red", "vermilion", "orange", "amber", "yellow",
     "chartreuse", "green", "teal", "blue", "violet", "purple", "magenta"];
 
 draw();
-// ---------------------- kernel --------------------------------
+
+// ---------------------- Drawing --------------------------------
+
 function draw() {
     if (colorCheck.checked)
         drawColor();
@@ -46,7 +44,6 @@ function drawBW() {
     for (let x = 0; x < canvas1.width; x += d) {
         for (let y = 0; y < canvas1.height; y += d) {
             let [wx, wy] = canvasToWorld(x, y);
-            let count = countIter(wx, wy);
             if (countIter(wx, wy) === iterLimit) {
                 ctx.fillRect(x, y, d, d);
             }
@@ -60,10 +57,12 @@ function drawInfo() {
         `M = 1:${K}<sup>${stack.length}</sup>`;
 }
 
+// ---------------------- Math --------------------------------
+
 // Zn = Zn * Zn + c;
 // Zo = 0; c = {x, y}
-function countIter(x, y, limit = iterLimit) {
-    let cx = x, cy = y;
+function countIter(cx, cy, limit = iterLimit) {
+    let x = cx, y = cy;
     for (let i = 0; i < limit; i++)
     {
         [x, y] = [x * x - y * y + cx, 2 * x * y + cy];
@@ -72,6 +71,17 @@ function countIter(x, y, limit = iterLimit) {
     }
     return limit;
 }
+// function countIter(x, y, limit = iterLimit) {
+//     let cx = x, cy = y;
+//     for (let i = 0; i < limit; i++)
+//     {
+//         [x, y] = [x * x - y * y + cx, 2 * x * y + cy];
+//         if ((x * x) + (y * y) > 4)
+//             return i
+//     }
+//     return limit;
+// }
+
 
 function canvasToWorld(canvasX, canvasY) {
     return [
@@ -79,7 +89,7 @@ function canvasToWorld(canvasX, canvasY) {
         canvasY * (y2 - y1) / canvas1.height + y1 ]
 }
 
-// ----------- event handlers --------------------------
+// ----------- Event handlers --------------------------
 
 canvas1.addEventListener('click', function (e) {
     save();
@@ -93,7 +103,6 @@ canvas1.addEventListener('click', function (e) {
     y2 = y + dy / 2;
 
     draw();
-
 });
 
 canvas1.addEventListener("contextmenu", function (e) {
@@ -111,11 +120,9 @@ iterButton.addEventListener('click', function () {
 colorCheck.addEventListener('click', draw);
 
 
-
 canvas1.addEventListener('mousemove', function (e) {
     let [wx, wy] = canvasToWorld(e.clientX, e.clientY);
-    let count = countIter(wx, wy, 10000);
-    iter.innerHTML = count;
+    iter.innerHTML = countIter(wx, wy, 10000);
 });
 
 // ---------------- Stack ----------------------
