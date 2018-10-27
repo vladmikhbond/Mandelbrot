@@ -1,6 +1,6 @@
 
 
-const K = 10;         // scale change for one step
+const K = 2;         // scale change for one step
 
 // let iterButton = document.getElementById("iterButton");
 // const canvas1 = document.getElementById("canvas1");
@@ -10,25 +10,54 @@ let x1 = -2, y1 = -1, x2 = 1, y2 = 1;
 let d = 1   ;
 let iterLimit = +iterText.value;
 const stack = [];
+const colors = ["red", "vermilion", "orange", "amber", "yellow",
+    "chartreuse", "green", "teal", "blue", "violet", "purple", "magenta"];
 
 draw();
-
 // ---------------------- kernel --------------------------------
-
 function draw() {
+    if (colorCheck.checked)
+        drawColor();
+    else
+        drawBW();
+    drawInfo();
+}
+
+function drawColor() {
+    ctx.fillStyle = "#222";
+    ctx.fillRect(0, 0, canvas1.width, canvas1.height );
+
+    for (let x = 0; x < canvas1.width; x += d) {
+        for (let y = 0; y < canvas1.height; y += d) {
+            let [wx, wy] = canvasToWorld(x, y);
+            let count = countIter(wx, wy);
+            if (count < iterLimit) {
+                ctx.fillStyle = getColor(count);
+                ctx.fillRect(x, y, d, d);
+            }
+        }
+    }
+}
+
+function drawBW() {
+    ctx.fillStyle = "black";
     ctx.clearRect(0, 0, canvas1.width, canvas1.height );
 
     for (let x = 0; x < canvas1.width; x += d) {
         for (let y = 0; y < canvas1.height; y += d) {
             let [wx, wy] = canvasToWorld(x, y);
-            let i = countIter(wx, wy);
-            if (i === iterLimit)
+            let count = countIter(wx, wy);
+            if (countIter(wx, wy) === iterLimit) {
                 ctx.fillRect(x, y, d, d);
+            }
         }
     }
-    // info
-    info.innerHTML = `M = 1:${K ** stack.length}`;
+}
 
+function drawInfo() {
+    info.innerHTML = (K**stack.length < 1000) ?
+        `M = 1:${K**stack.length}` :
+        `M = 1:${K}<sup>${stack.length}</sup>`;
 }
 
 // Zn = Zn * Zn + c;
@@ -64,24 +93,30 @@ canvas1.addEventListener('click', function (e) {
     y2 = y + dy / 2;
 
     draw();
+
 });
 
+canvas1.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+    restore();
+    iterText.value = iterLimit;
+    draw();
+});
 
 iterButton.addEventListener('click', function () {
     iterLimit = +iterText.value;
     draw();
 });
 
-backButton.addEventListener('click', function () {
-    restore();
-    iterText.value = iterLimit;
-    draw();
-});
+colorCheck.addEventListener('click', draw);
 
-// canvas1.addEventListener('mousemove', function (e)
-// {
-//     let [x, y] = canvasToWorld(e.clientX, e.clientY);
-// });
+
+
+canvas1.addEventListener('mousemove', function (e) {
+    let [wx, wy] = canvasToWorld(e.clientX, e.clientY);
+    let count = countIter(wx, wy, 10000);
+    iter.innerHTML = count;
+});
 
 // ---------------- Stack ----------------------
 
@@ -95,3 +130,9 @@ function restore() {
     x1 = o.x1; x2 = o.x2; y1 = o.y1; y2 = o.y2; iterLimit = o.iterLimit;
 }
 
+// ---------------- Colors ----------------------
+
+function getColor(n) {
+    let i = (n % colors.length);
+    return colors[i];
+}
