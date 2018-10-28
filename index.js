@@ -106,6 +106,8 @@ colorSchemes[0].onclick = function() { getColor = getColor0; draw() };
 colorSchemes[1].onclick = function() { getColor = getColor1; draw() };
 colorSchemes[2].onclick = function() { getColor = getColor2; draw() };
 colorSchemes[3].onclick = function() { getColor = getColor3; draw() };
+colorSchemes[4].onclick = function() { getColor = getColor4; draw() };
+colorSchemes[5].onclick = function() { getColor = getColor5; draw() };
 
 
 
@@ -122,23 +124,26 @@ function restore() {
     x1 = o.x1; x2 = o.x2; y1 = o.y1; y2 = o.y2; iterLimit = o.iterLimit;
 }
 
+
+
 function saveToStorage() {
     let o = {"x1": x1, "x2": x2, "y1": y1, "y2": y2, "iterLimit":iterLimit };
-    localStorage.setItem("LAST", o);
+    localStorage.setItem("LAST", JSON.stringify(o));
 }
 
 function restoreFromStorage() {
     let str = localStorage.getItem("LAST");
-
-    if (!str) return;
-    let o = JSON.parse(str);
-    x1 = o.x1; x2 = o.x2; y1 = o.y1; y2 = o.y2; iterLimit = o.iterLimit;
+    try {
+        let o = JSON.parse(str);
+        x1 = o.x1; x2 = o.x2; y1 = o.y1; y2 = o.y2; iterLimit = o.iterLimit;
+    }
+    catch {}
 }
 
 
 // ---------------- Colors ----------------------
 
-function getColor0(n) {
+function getColor0() {
     return "aqua";
 }
 
@@ -154,9 +159,20 @@ function getColor2(n) {
     let i = (n % colors.length);
     return colors[i];
 }
+const l = 100;
 
 function getColor3(n) {
-    let c = 256 + (n - iterLimit);
-    if (c < 0) c = 0;
-    return `rgb(${128}, ${c}, ${128})`;
+    let c = 256 + 2 * (n - iterLimit);
+    if (c < l) c = l;
+    return `rgb(${c}, ${l}, ${l})`;
+}
+function getColor4(n) {
+    let c = 256 + 2 * (n - iterLimit);
+    if (c < l) c = l;
+    return `rgb(${l}, ${c}, ${l})`;
+}
+function getColor5(n) {
+    let c = 256 + 2 * (n - iterLimit);
+    if (c < l) c = l;
+    return `rgb(${l}, ${l}, ${c})`;
 }
