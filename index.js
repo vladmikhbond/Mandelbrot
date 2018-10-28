@@ -101,13 +101,15 @@ canvas1.addEventListener('click', function (e) {
 canvas1.addEventListener("contextmenu", function (e) {
     e.preventDefault();
     restore();
-    iterText.value = iterLimit;
+    saveToStorage();
     draw();
 });
 
 canvas1.addEventListener('mousemove', function (e) {
+    const INFIN = 10000;
     let [wx, wy] = canvasToWorld(e.clientX, e.clientY);
-    iter.innerHTML = countIter(wx, wy, 10000).toString();
+    let n = countIter(wx, wy, INFIN);
+    iter.innerHTML = n === INFIN ? "∞" : n.toString();
 });
 
 
@@ -117,8 +119,6 @@ colorSchemes[0].onclick = function() { getColor = getColor0; draw() };
 colorSchemes[1].onclick = function() { getColor = getColor1; draw() };
 colorSchemes[2].onclick = function() { getColor = getColor2; draw() };
 colorSchemes[3].onclick = function() { getColor = getColor3; draw() };
-colorSchemes[4].onclick = function() { getColor = getColor4; draw() };
-colorSchemes[5].onclick = function() { getColor = getColor5; draw() };
 
 darkColor.oninput = draw;
 lightColor.oninput = draw;
@@ -135,35 +135,42 @@ iterButton.addEventListener('click', function () {
 // ---------------- Stack & Storage ----------------------
 
 function save() {
-    let o = {"x1": x1, "x2": x2, "y1": y1, "y2": y2, "iterLimit":iterLimit };
+    let i = 0;
+    for (; i < colorSchemes.length; i++)
+        if (colorSchemes[i].checked)
+            break;
+    let o = {x1, x2, y1, y2, iterLimit, "colorSchemeIdx": i,
+        "colors": [darkColor.value, lightColor.value, thirdColor.value] };
     stack.push(o);
 }
 
 function restore() {
-    if (stack.length < 1) return;
+    if (stack.length < 1)
+        return;
     let o = stack.pop();
-    x1 = o.x1; x2 = o.x2; y1 = o.y1; y2 = o.y2; iterLimit = o.iterLimit;
+    x1 = o.x1; x2 = o.x2; y1 = o.y1; y2 = o.y2;
+    iterLimit = o.iterLimit;
+    iterText.value = iterLimit;
+    colorSchemes[o.colorSchemeIdx].checked = true;
+    darkColor.value = o.colors[0];
+    lightColor.value = o.colors[1];
+    thirdColor.value = o.colors[2];
 }
 
 
 function saveToStorage() {
-    let o = {"x1": x1, "x2": x2, "y1": y1, "y2": y2,
-        "iterLimit": iterLimit, "stack": stack};
-    localStorage.setItem("LAST", JSON.stringify(o));
+    localStorage.setItem("STACK", JSON.stringify(stack));
 }
 
 function restoreFromStorage() {
-    let str = localStorage.getItem("LAST");
+    let str = localStorage.getItem("STACK");
+    if (!str) return;
+
+    stack = [];
     try {
-        let o = JSON.parse(str);
-        x1 = o.x1; x2 = o.x2; y1 = o.y1; y2 = o.y2;
-        iterLimit = o.iterLimit;
-        stack = o.stack;
-        //
-        iterText.value = iterLimit;
-        colorSchemes[0].checked = true;
-    }
-    catch {}
+        stack = JSON.parse(str);
+        restore();
+    } catch {}
 }
 
 
@@ -179,6 +186,7 @@ function getColor1(n) {
     let i = (n % colors.length);
     return colors[i];
 }
+let level = 64;
 
 function getColor2(n) {
     const colors = [lightColor.value, thirdColor.value];
@@ -186,22 +194,20 @@ function getColor2(n) {
     return colors[i];
 }
 
-let level = 64;
-
 function getColor3(n) {
-    let c = 256 + 2 * (n - iterLimit);
-    if (c < level) c = level;
-    return `rgb(${c}, ${level}, ${level})`;
+    let c = (256 + 5 * (n - iterLimit)) / 255; // 255 -> 0
+    if (c < 0) c = 0;
+    let r1 = parseInt((lightColor.value.substr(1, 2)), 16);
+    let g1 = parseInt((lightColor.value.substr(3, 2)), 16);
+    let b1 = parseInt((lightColor.value.substr(5, 2)), 16);
+    let r2 = parseInt((thirdColor.value.substr(1, 2)), 16);
+    let g2 = parseInt((thirdColor.value.substr(3, 2)), 16);
+    let b2 = parseInt((thirdColor.value.substr(5, 2)), 16);
+
+    let r = (r1 * c + r2 * (1 - c)) | 0;
+    let g = (g1 * c + g2 * (1 - c)) | 0;
+    let b = (b1 * c + b2 * (1 - c)) | 0;
+
+    return `rgb(${r}, ${g}, ${b})`;
 }
 
-function getColor4(n) {
-    let c = 256 + 2 * (n - iterLimit);
-    if (c < level) c = level;
-    return `rgb(${level}, ${c}, ${level})`;
-}
-
-function getColor5(n) {
-    let c = 256 + 2 * (n - iterLimit);
-    if (c < level) c = level;
-    return `rgb(${level}, ${level}, ${c})`;
-}
