@@ -4,5 +4,16 @@
 }
 
 #iterText {
+    margin-left: 10px;
     width: 50px;
+    text-align: right;
+}
+
+#iter {
+    margin-left: 10px;
+    color: blue;
+}
+
+.panel {
+    border: thin gray solid;
 }
