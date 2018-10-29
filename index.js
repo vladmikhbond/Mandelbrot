@@ -23,7 +23,7 @@ let themeIdx;
 function init() {
     x1 = -2; y1 = -1; x2 = 1; y2 = 1;
     stack = [];
-    iterLimit = 100;
+    iterLimit = 20;
     themeIdx = 0;
     // UI
     themes[0].checked = true;
