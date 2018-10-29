@@ -28,7 +28,7 @@ function init() {
     stack = [];
     getColor = getColor0;
     iterLimit = 100;
-    //
+    // UI
     iterText.value = iterLimit;
     colorSchemes[0].checked = true;
 
@@ -38,20 +38,34 @@ function init() {
 function draw() {
     ctx.fillStyle = darkColor.value;
     ctx.fillRect(0, 0, canvas1.width, canvas1.height );
-
+    let low = minIter();
     for (let x = 0; x < canvas1.width; x += D) {
         for (let y = 0; y < canvas1.height; y += D) {
             let [wx, wy] = canvasToWorld(x, y);
             let count = countIter(wx, wy);
             if (count < iterLimit) {
-                ctx.fillStyle = getColor(count);
+                ctx.fillStyle = getColor(count, low);
                 ctx.fillRect(x, y, D, D);
             }
         }
     }
     drawInfo();
-
+    // -----------------
+    function minIter() {
+        let res = Number.MAX_VALUE;
+        const d = D * 50;
+        for (let x = 0; x < canvas1.width; x += d) {
+            for (let y = 0; y < canvas1.height; y += d) {
+                let [wx, wy] = canvasToWorld(x, y);
+                let count = countIter(wx, wy);
+                if (count < res)
+                    res = count;
+            }
+        }
+        return res
+    }
 }
+
 
 function drawInfo() {
     info.innerHTML = (K**stack.length < 1000) ?
@@ -122,10 +136,7 @@ colorSchemes[3].onclick = function() { getColor = getColor3; draw() };
 
 darkColor.oninput = draw;
 lightColor.oninput = draw;
-thirdColor.oninput = function() {
-    level = +("0x" + this.value.slice(1, 3));
-    draw()
-};
+thirdColor.oninput = draw;
 
 iterButton.addEventListener('click', function () {
     iterLimit = +iterText.value;
@@ -176,8 +187,8 @@ function restoreFromStorage() {
 
 // ---------------- Colors ----------------------
 
-function getColor0() {
-    return lightColor.value;
+function getColor0(n) {
+    return n === iterLimit ? "black" : "white";
 }
 
 function getColor1(n) {
@@ -186,17 +197,15 @@ function getColor1(n) {
     let i = (n % colors.length);
     return colors[i];
 }
-let level = 64;
 
 function getColor2(n) {
     const colors = [lightColor.value, thirdColor.value];
-    let i = (n % colors.length);
-    return colors[i];
+    return colors[n % 2];
 }
 
-function getColor3(n) {
-    let c = (256 + 5 * (n - iterLimit)) / 255; // 255 -> 0
-    if (c < 0) c = 0;
+function getColor3(n, n0)
+{
+    let k = (n - n0) / (iterLimit - n0);
     let r1 = parseInt((lightColor.value.substr(1, 2)), 16);
     let g1 = parseInt((lightColor.value.substr(3, 2)), 16);
     let b1 = parseInt((lightColor.value.substr(5, 2)), 16);
@@ -204,9 +213,9 @@ function getColor3(n) {
     let g2 = parseInt((thirdColor.value.substr(3, 2)), 16);
     let b2 = parseInt((thirdColor.value.substr(5, 2)), 16);
 
-    let r = (r1 * c + r2 * (1 - c)) | 0;
-    let g = (g1 * c + g2 * (1 - c)) | 0;
-    let b = (b1 * c + b2 * (1 - c)) | 0;
+    let r = (r1 * k + r2 * (1 - k)) | 0;
+    let g = (g1 * k + g2 * (1 - k)) | 0;
+    let b = (b1 * k + b2 * (1 - k)) | 0;
 
     return `rgb(${r}, ${g}, ${b})`;
 }
