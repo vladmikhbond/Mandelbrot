@@ -3,7 +3,6 @@ const iterText = document.getElementById("iterText");
 const themes = document.getElementsByName("themes");
 const info = document.getElementById("info");
 const iter = document.getElementById("iter");
-const iterButton = document.getElementById("iterButton");
 const resetButton = document.getElementById("resetButton");
 const darkColor = document.getElementById("darkColor");
 const lightColor = document.getElementById("lightColor");
@@ -125,9 +124,11 @@ canvas1.addEventListener('mousemove', function (e) {
 
 resetButton.onclick = function() { init(); draw() };
 
-iterButton.addEventListener('click', function () {
-    iterLimit = +iterText.value;
-    draw();
+iterText.addEventListener('keydown', function (e) {
+    if (e.key === "Enter" && (+iterText.value)) {
+        iterLimit = +iterText.value;
+        draw();
+    }
 });
 
 for (let i = 0; i < themes.length; i++)
@@ -184,8 +185,8 @@ function restoreFromStorage() {
 
 const themeColors = [blackWhite, fair, zebra, threeColors];
 
-function blackWhite(n) {
-    return n === iterLimit ? "black" : "white";
+function blackWhite() {
+    return lightColor.value;
 }
 
 function fair(n) {
