@@ -1,6 +1,6 @@
 const canvas1 = document.getElementById("canvas1");
 const iterText = document.getElementById("iterText");
-const colorSchemes = document.getElementsByName("colorSchemes");
+const themes = document.getElementsByName("themes");
 const info = document.getElementById("info");
 const iter = document.getElementById("iter");
 const iterButton = document.getElementById("iterButton");
@@ -16,26 +16,22 @@ const ctx = canvas1.getContext("2d");
 let x1, x2, y1, y2;
 let iterLimit;
 let stack;
-let getColor;
-//
-init();
-restoreFromStorage();
-draw();
+let themeIdx;
+
+
 
 function init() {
     x1 = -2; y1 = -1; x2 = 1; y2 = 1;
-    iterLimit = +iterText.value;
     stack = [];
-    getColor = getColor0;
     iterLimit = 100;
+    themeIdx = 0;
     // UI
+    themes[0].checked = true;
     iterText.value = iterLimit;
-    colorSchemes[0].checked = true;
-
-    draw();
 }
 
 function draw() {
+    let getColor = themeColors[themeIdx];
     ctx.fillStyle = darkColor.value;
     ctx.fillRect(0, 0, canvas1.width, canvas1.height );
     let low = minIter();
@@ -64,14 +60,14 @@ function draw() {
         }
         return res
     }
+
+    function drawInfo() {
+        info.innerHTML = (K**stack.length < 1000) ?
+            `M = 1:${K**stack.length}` :
+            `M = 1:${K}<sup>${stack.length}</sup>`;
+    }
 }
 
-
-function drawInfo() {
-    info.innerHTML = (K**stack.length < 1000) ?
-        `M = 1:${K**stack.length}` :
-        `M = 1:${K}<sup>${stack.length}</sup>`;
-}
 
 // ---------------------- Math --------------------------------
 
@@ -100,7 +96,7 @@ function canvasToWorld(canvasX, canvasY) {
 canvas1.addEventListener('click', function (e) {
     save();
     saveToStorage();
-
+    //
     let [x, y] = canvasToWorld(e.clientX, e.clientY);
     let dx = (x2 - x1) / K;
     let dy = (y2 - y1) / K;
@@ -108,7 +104,7 @@ canvas1.addEventListener('click', function (e) {
     x2 = x + dx / 2;
     y1 = y - dy / 2;
     y2 = y + dy / 2;
-
+    //
     draw();
 });
 
@@ -120,37 +116,31 @@ canvas1.addEventListener("contextmenu", function (e) {
 });
 
 canvas1.addEventListener('mousemove', function (e) {
-    const INFIN = 10000;
+    const infinity = 10000;
     let [wx, wy] = canvasToWorld(e.clientX, e.clientY);
-    let n = countIter(wx, wy, INFIN);
-    iter.innerHTML = n === INFIN ? "∞" : n.toString();
+    let n = countIter(wx, wy, infinity);
+    iter.innerHTML = n === infinity ? "∞" : n.toString();
 });
 
 
-resetButton.addEventListener('click', init);
-
-colorSchemes[0].onclick = function() { getColor = getColor0; draw() };
-colorSchemes[1].onclick = function() { getColor = getColor1; draw() };
-colorSchemes[2].onclick = function() { getColor = getColor2; draw() };
-colorSchemes[3].onclick = function() { getColor = getColor3; draw() };
-
-darkColor.oninput = draw;
-lightColor.oninput = draw;
-thirdColor.oninput = draw;
+resetButton.onclick = function() { init(); draw() };
 
 iterButton.addEventListener('click', function () {
     iterLimit = +iterText.value;
     draw();
 });
 
+for (let i = 0; i < themes.length; i++)
+    themes[i].onclick = function() { themeIdx = i; draw() };
+
+darkColor.oninput = draw;
+lightColor.oninput = draw;
+thirdColor.oninput = draw;
+
 // ---------------- Stack & Storage ----------------------
 
 function save() {
-    let i = 0;
-    for (; i < colorSchemes.length; i++)
-        if (colorSchemes[i].checked)
-            break;
-    let o = {x1, x2, y1, y2, iterLimit, "colorSchemeIdx": i,
+    let o = {x1, x2, y1, y2, iterLimit, themeIdx,
         "colors": [darkColor.value, lightColor.value, thirdColor.value] };
     stack.push(o);
 }
@@ -161,8 +151,10 @@ function restore() {
     let o = stack.pop();
     x1 = o.x1; x2 = o.x2; y1 = o.y1; y2 = o.y2;
     iterLimit = o.iterLimit;
+    themeIdx = o.themeIdx;
+    // UI
     iterText.value = iterLimit;
-    colorSchemes[o.colorSchemeIdx].checked = true;
+    themes[o.themeIdx].checked = true;
     darkColor.value = o.colors[0];
     lightColor.value = o.colors[1];
     thirdColor.value = o.colors[2];
@@ -175,35 +167,40 @@ function saveToStorage() {
 
 function restoreFromStorage() {
     let str = localStorage.getItem("STACK");
-    if (!str) return;
-
+    if (!str) {
+        init();
+        return
+    }
     stack = [];
     try {
         stack = JSON.parse(str);
-        restore();
-    } catch {}
+        restore()
+    } catch {
+        init()
+    }
 }
 
+// ---------------- Themes ----------------------
 
-// ---------------- Colors ----------------------
+const themeColors = [blackWhite, fair, zebra, threeColors];
 
-function getColor0(n) {
+function blackWhite(n) {
     return n === iterLimit ? "black" : "white";
 }
 
-function getColor1(n) {
+function fair(n) {
     const colors = ["red", "vermilion", "orange", "amber", "yellow",
         "chartreuse", "green", "teal", "blue", "violet", "purple", "magenta"];
     let i = (n % colors.length);
     return colors[i];
 }
 
-function getColor2(n) {
+function zebra(n) {
     const colors = [lightColor.value, thirdColor.value];
     return colors[n % 2];
 }
 
-function getColor3(n, n0)
+function threeColors(n, n0)
 {
     let k = (n - n0) / (iterLimit - n0);
     let r1 = parseInt((lightColor.value.substr(1, 2)), 16);
@@ -212,11 +209,14 @@ function getColor3(n, n0)
     let r2 = parseInt((thirdColor.value.substr(1, 2)), 16);
     let g2 = parseInt((thirdColor.value.substr(3, 2)), 16);
     let b2 = parseInt((thirdColor.value.substr(5, 2)), 16);
-
     let r = (r1 * k + r2 * (1 - k)) | 0;
     let g = (g1 * k + g2 * (1 - k)) | 0;
     let b = (b1 * k + b2 * (1 - k)) | 0;
-
     return `rgb(${r}, ${g}, ${b})`;
 }
+
+//================ Main =====================
+
+restoreFromStorage();
+draw();
 
