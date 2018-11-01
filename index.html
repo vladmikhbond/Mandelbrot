@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,24 +6,28 @@
 </head>
 <body>
 <canvas id="canvas1" width="600" height="400"></canvas>
+    <div>
+        <button id="resetButton">Reset</button>
+        <button id="exportButton">Exp</button>
+        <button id="importButton">Imp</button>
+        <div class="panel">
+            <input type="radio" name="themes" checked title="BlackWhite" value="0">
+            <input type="radio" name="themes" title="Fair" value="1">
+            <input type="radio" name="themes" title="Zebra" value="2">
+            <input type="radio" name="themes" title="Three colors" value="3">
+        </div>
+        <input type="color" id="darkColor" title="Dark Color" value="#000000" >
+        <input type="color" id="lightColor" title="Light Color" value="#FFFFFF" >
+        <input type="color" id="thirdColor" title="Third Color" value="#FFFFFF" >
+        <input type="text" id="iterText" value="100" title="Infinity Substitution" >
+        <span id="info"></span>
+        <span id="iter"></span>
+    </div>
+    <div style="margin-top: 8px">
+        <input type="text" id="exportText" >
+        <input type="text" id="importText" >
+    </div>
 
-<div>
-  <button id="resetButton">Reset</button>
-  <div class="panel">
-    <input type="radio" name="themes" checked title="BlackWhite" value="0">
-    <input type="radio" name="themes" title="Fair" value="1">
-    <input type="radio" name="themes" title="Zebra" value="2">
-    <input type="radio" name="themes" title="Three colors" value="3">
-  </div>
-  <input type="color" id="darkColor" title="Dark Color" value="#000000" >
-  <input type="color" id="lightColor" title="Light Color" value="#FFFFFF" >
-  <input type="color" id="thirdColor" title="Third Color" value="#FFFFFF" >
-
-  <input type="text" id="iterText" value="100" title="Infinity Substitution"  />
-  <span id="info"></span>
-  <span id="iter"></span>
-</div>
-
-<script src="index.js"></script>
+    <script src="index.js"></script>
 </body>
 </html>

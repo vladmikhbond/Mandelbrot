@@ -24,11 +24,15 @@ input {
 }
 
 #iter {
-    margin-left: 20px;
     color: gray;
     font-size: small;
-
-
+    width: 40px;
+    display: inline-block;
+    text-align: right;
 
 }
-
+#exportText, #importText {
+    display: none;
+    width: 600px;
+    font-size: small;
+}

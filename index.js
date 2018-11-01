@@ -121,6 +121,35 @@ canvas1.addEventListener('mousemove', function (e) {
     iter.innerHTML = n === infinity ? "∞" : n.toString();
 });
 
+exportButton.onclick = function() {
+    if (!exportText.style.display) {
+        let o = stack[stack.length - 1];
+        o.stackLength = stack.length;
+        exportText.value = JSON.stringify(o);
+        exportText.style.display = "inline-block";
+    } else {
+        exportText.style.display = "";
+    }
+};
+
+importButton.onclick = function() {
+    if (exportText.style.display) {  // visible text
+        try {
+            let o = JSON.parse(exportText.value);
+            stack = [];
+            for (let i = 0; i < o.stackLength; i++)
+                stack.push(o);
+            restore();
+            draw();
+            exportText.style.display = "";
+        } catch (e) {
+            alert ("Wrong data");
+        }
+    } else {
+        exportText.style.display = "inline-block";
+        exportText.value = "";
+    }
+};
 
 resetButton.onclick = function() { init(); draw() };
 
