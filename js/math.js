@@ -2,7 +2,7 @@
 
 // Zn = Zn * Zn + c;
 // Zo = 0; c = {x, y}
-function countIter1(cx, cy, limit = iterLimit) {
+function countIter(cx, cy, limit = iterLimit) {
     let x = cx, y = cy;
     for (let i = 0; i < limit; i++)
     {
@@ -21,15 +21,16 @@ function canvasToWorld(canvasX, canvasY) {
 }
 
 
-function countIter(cx, cy, limit = iterLimit, pow = 6) {
+function countIterP(cx, cy, limit = iterLimit, pow = 2) {
     let x = cx, y = cy;  // первая итерация z = c
     for (let i = 0; i < limit; i++)
     {
-        // ---- z2 = z**p + c
+        // ---- z = z**pow
         let xs = x, ys = y;
         for (let p = pow; p > 1; p--) {
             [xs, ys] = [xs * x - ys * y, x * y + xs * ys];
         }
+        // ---- z = z**pow + c
         x = xs + cx;
         y = ys + cy;
         // ------------------
@@ -39,8 +40,9 @@ function countIter(cx, cy, limit = iterLimit, pow = 6) {
     return limit;
 }
 
+
 // let iterLimit = 1000;
 // for (let x = -2; x < 1; x += 0.1) {
-//     console.log(countIter1(x, 0),  countIter(x, 0))
+//     console.log(countIter1(x, 0.4),  countIter(x, 0.4))
 // }
 
