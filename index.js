@@ -10,11 +10,13 @@ const exportText = document.getElementById("exportText");
 const darkColor = document.getElementById("darkColor");
 const lightColor = document.getElementById("lightColor");
 const thirdColor = document.getElementById("thirdColor");
-//exportButton
+const power = document.getElementById("power");
+
 const D = 1;      // canvas pixel
 const K = 2;      // scale change for one step
 const ctx = canvas1.getContext("2d");
 
+let pow = 2;
 let x1, x2, y1, y2;
 let iterLimit;
 let stack = [];
@@ -26,13 +28,13 @@ canvas1.addEventListener('click', function (e) {
     save();
     saveToStorage();
     //
-    let [x, y] = canvasToWorld(e.clientX, e.clientY);
-    let dx = (x2 - x1) / K;
-    let dy = (y2 - y1) / K;
-    x1 = x - dx / 2;
-    x2 = x + dx / 2;
-    y1 = y - dy / 2;
-    y2 = y + dy / 2;
+    let [x, y] = canvasToWorld(e.clientX - canvas1.offsetLeft, e.clientY - canvas1.offsetTop);
+    let xSize = (x2 - x1) / K;
+    let ySize = (y2 - y1) / K;
+    x1 = x - xSize / 2;
+    x2 = x + xSize / 2;
+    y1 = y - ySize / 2;
+    y2 = y + ySize / 2;
     //
     draw();
 });
@@ -46,7 +48,7 @@ canvas1.addEventListener("contextmenu", function (e) {
 
 canvas1.addEventListener('mousemove', function (e) {
     const infinity = 10000;
-    let [wx, wy] = canvasToWorld(e.clientX, e.clientY);
+    let [wx, wy] = canvasToWorld(e.clientX - canvas1.offsetLeft, e.clientY - canvas1.offsetTop);
     let n = countIter(wx, wy, infinity);
     iter.innerHTML = n === infinity ? "∞" : n.toString();
 });
@@ -83,13 +85,25 @@ importButton.onclick = function() {
     }
 };
 
-resetButton.onclick = function() { init(); draw() };
+resetButton.onclick = function() {
+    init();
+    draw();
+    save();
+    saveToStorage();
+
+};
 
 iterText.addEventListener('keydown', function (e) {
     if (e.key === "Enter" && (+iterText.value)) {
         iterLimit = +iterText.value;
         draw();
     }
+});
+
+power.addEventListener('click', function () {
+    pow = (pow + 1) % 10;
+    draw();
+    power.innerHTML = `Z<sup>${pow}</sup> + C`;
 });
 
 // ----------- Color events --------------------------
@@ -117,3 +131,5 @@ function init() {
 restoreFromStorage();
 draw();
 
+// sample picture
+// {"x1":-0.741962890625,"x2":-0.739033203125,"y1":-0.184375,"y2":-0.182421875,"iterLimit":400,"themeIdx":0,"colors":["#000000","#ffffff","#ffffff"],"stackLength":12}

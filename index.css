@@ -36,3 +36,8 @@ input {
     width: 600px;
     font-size: small;
 }
+
+#power {
+    cursor: pointer;
+    color: darkred;
+}
