@@ -37,7 +37,11 @@ input {
     font-size: small;
 }
 
-#power {
+h3 {
+     color: darkred;
+}
+
+#power, #delta {
     cursor: pointer;
-    color: darkred;
+    color: red;
 }

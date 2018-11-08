@@ -11,12 +11,14 @@ const darkColor = document.getElementById("darkColor");
 const lightColor = document.getElementById("lightColor");
 const thirdColor = document.getElementById("thirdColor");
 const power = document.getElementById("power");
+const delta = document.getElementById("delta");
 
-const D = 1;      // canvas pixel
-const K = 2;      // scale change for one step
 const ctx = canvas1.getContext("2d");
 
+let K = 2;      // scale change for one step
+let D = 10;      // canvas pixel
 let pow = 2;
+
 let x1, x2, y1, y2;
 let iterLimit;
 let stack = [];
@@ -100,10 +102,19 @@ iterText.addEventListener('keydown', function (e) {
     }
 });
 
+// ---------------------------------------------------
+
 power.addEventListener('click', function () {
     pow = (pow + 1) % 10;
     draw();
-    power.innerHTML = `Z<sup>${pow}</sup> + C`;
+    power.innerHTML = pow;
+});
+
+delta.addEventListener('click', function () {
+    const ds = [1, 2, 3, 5];
+    D = ds[(ds.indexOf(D) + 1) % 4];
+    draw();
+    delta.innerHTML = D;
 });
 
 // ----------- Color events --------------------------
